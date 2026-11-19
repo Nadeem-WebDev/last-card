@@ -106,7 +106,7 @@ button,input,select{font:inherit;color:inherit}
 /* ---------- table ---------- */
 .ts{height:100%;display:grid;grid-template-rows:auto minmax(300px,1fr) auto auto;overflow:hidden}
 .tbar{display:flex;align-items:center;gap:14px;padding:12px 16px}
-.tcode{font-weight:700}
+.tcode{font-weight:700;white-space:nowrap}
 .tcode b{letter-spacing:.2em}
 .ticker{margin-left:auto;text-align:right;font-size:13px;color:var(--muted);line-height:1.35;max-width:46ch;min-height:2.7em}
 .ticker div:last-child{color:var(--ink);font-weight:600}
@@ -169,7 +169,6 @@ button,input,select{font:inherit;color:inherit}
 .modal{background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:24px;padding:26px;width:min(100%,460px);box-shadow:0 30px 80px rgba(0,0,0,.4);max-height:100%;overflow:auto}
 .modal h2{margin:0 0 6px;font-size:26px;letter-spacing:-.02em;line-height:1.1}
 .modal p{margin:0 0 16px;color:var(--muted)}
-.inset{position:absolute;inset:0;z-index:8;display:grid;place-items:center;padding:16px}
 .colors{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0}
 .colors button{height:84px;border:0;border-radius:16px;color:#fff;font-weight:800;font-size:18px;cursor:pointer;box-shadow:0 5px 0 rgba(0,0,0,.3)}
 .colors button:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,.3)}
@@ -187,6 +186,141 @@ button,input,select{font:inherit;color:inherit}
 .score{font-weight:800;font-variant-numeric:tabular-nums}
 .loading{height:100%;display:grid;place-items:center;text-align:center;color:var(--muted)}
 
+/* ---------- stacking, emotes, sound ---------- */
+.penb{position:absolute;left:50%;top:-38px;z-index:6;transform:translateX(-50%);background:var(--red);color:#fff;font-weight:800;font-size:22px;line-height:1;
+  padding:6px 14px;border-radius:999px;border:3px solid var(--rim);box-shadow:0 6px 18px rgba(0,0,0,.45);white-space:nowrap;font-variant-numeric:tabular-nums}
+.penb.bump{animation:bump .55s cubic-bezier(.2,1.7,.4,1)}
+@keyframes bump{0%{transform:translateX(-50%) scale(.3)}100%{transform:translateX(-50%) scale(1)}}
+/* reactions: a floating button in the table corner with a tray that slides out of it */
+.react{position:absolute;right:14px;bottom:14px;z-index:7;display:flex;align-items:center;gap:10px}
+.rbtn{position:relative;width:54px;height:54px;border-radius:50%;border:3px solid var(--rim);cursor:pointer;font-size:27px;line-height:1;display:grid;place-items:center;
+  background:radial-gradient(circle at 35% 28%,#FFE89A,var(--yellow) 62%,#D99A12);box-shadow:0 4px 0 #8A5F04,0 12px 26px rgba(0,0,0,.4);transition:transform .18s cubic-bezier(.3,1.6,.5,1)}
+.rbtn:hover{transform:translateY(-3px) rotate(-10deg) scale(1.05)}
+.rbtn:active{transform:translateY(2px) scale(.96);box-shadow:0 1px 0 #8A5F04,0 6px 14px rgba(0,0,0,.35)}
+.react.open .rbtn{background:radial-gradient(circle at 35% 28%,#fff,#E9E2F5);font-size:22px;color:#1D1630;font-weight:800}
+@property --p{syntax:"<percentage>";inherits:false;initial-value:0%}
+.rbtn.cool::after{content:"";position:absolute;inset:-8px;border-radius:50%;pointer-events:none;
+  background:conic-gradient(var(--blue) var(--p),transparent 0);
+  -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 4px),#000 calc(100% - 3px));mask:radial-gradient(farthest-side,transparent calc(100% - 4px),#000 calc(100% - 3px));
+  animation:cool .9s linear forwards;animation-delay:var(--d,0ms)}
+@keyframes cool{from{--p:100%}to{--p:0%}}
+.etray{display:flex;gap:6px;padding:7px;border-radius:999px;background:rgba(19,14,41,.86);border:1px solid rgba(255,255,255,.14);
+  box-shadow:0 14px 34px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.08);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);transform-origin:right center}
+.etray button{position:relative;width:44px;height:44px;border-radius:50%;border:0;cursor:pointer;font-size:24px;line-height:1;display:grid;place-items:center;
+  background:rgba(255,255,255,.07);transition:transform .18s cubic-bezier(.3,1.7,.5,1),background .15s}
+.etray button:hover,.etray button:focus-visible{transform:translateY(-6px) scale(1.28);background:rgba(255,255,255,.18);outline:none}
+.etray button:active{transform:translateY(-2px) scale(1.05)}
+.etray button::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 10px);left:50%;transform:translateX(-50%) scale(.78);background:#fff;color:#1D1630;
+  font-size:11px;font-weight:800;padding:3px 8px;border-radius:7px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .12s}
+.etray button:hover::after,.etray button:focus-visible::after{opacity:1}
+.etray.pop{animation:trayIn .3s cubic-bezier(.2,1.3,.4,1)}
+.etray.pop button{animation:emIn .4s cubic-bezier(.2,1.6,.4,1) backwards;animation-delay:calc((5 - var(--i)) * 35ms)}
+@keyframes trayIn{from{opacity:0;transform:scaleX(.2)}}
+@keyframes emIn{from{opacity:0;transform:scale(0) rotate(-40deg)}}
+
+/* setup panel: house-rule switch tile and segmented target picker */
+.setup{display:grid;gap:12px;margin-top:4px}
+.setrow{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.lbl{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.seg{display:inline-flex;background:var(--field);border:1.5px solid var(--line);border-radius:13px;padding:3px;gap:2px}
+.seg button{border:0;background:none;cursor:pointer;padding:7px 13px;border-radius:10px;font-weight:700;font-size:14px;color:var(--muted);transition:background .15s,color .15s;font-variant-numeric:tabular-nums}
+.seg button:hover{color:var(--ink)}
+.seg button.on{background:var(--key);color:var(--key-ink);box-shadow:0 2px 0 var(--key-shadow)}
+.rule{display:flex;align-items:center;gap:14px;width:100%;text-align:left;cursor:pointer;padding:12px 14px;border-radius:18px;
+  border:1.5px solid var(--line);background:var(--field);transition:border-color .2s,background .2s,box-shadow .2s}
+.rule:hover:not(:disabled){border-color:var(--muted)}
+.rule:disabled{cursor:default}
+.rule.on{border-color:var(--red);background:linear-gradient(135deg,color-mix(in srgb,var(--red) 13%,var(--field)),var(--field) 70%);box-shadow:0 6px 18px color-mix(in srgb,var(--red) 18%,transparent)}
+.rule .ico{position:relative;width:46px;height:44px;flex:none}
+.rule .ico .card{--w:26px;position:absolute;top:2px;box-shadow:0 2px 5px rgba(0,0,0,.3);transition:transform .3s cubic-bezier(.3,1.6,.5,1)}
+.rule .ico .card:first-child{left:2px;transform:rotate(-12deg)}
+.rule .ico .card:last-child{left:16px;transform:rotate(9deg) translateY(2px)}
+.rule:not(.on) .ico .card{filter:grayscale(.85) brightness(.95)}
+.rule.on .ico .card:last-child{transform:rotate(16deg) translate(3px,-3px)}
+.rule .txt{flex:1;min-width:0}
+.rule .ttl,.mode .ttl{display:block;font-weight:800;font-size:16px;color:var(--ink)}
+.rule .dsc,.mode .dsc{display:block;font-size:13px;color:var(--muted);line-height:1.35}
+/* mode tiles */
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mode{position:relative;display:grid;align-content:start;gap:4px;text-align:left;cursor:pointer;padding:12px 14px 14px;border-radius:18px;
+  border:1.5px solid var(--line);background:var(--field);transition:border-color .2s,box-shadow .2s,transform .15s}
+.mode:hover:not(:disabled){border-color:var(--muted);transform:translateY(-2px)}
+.mode:disabled{cursor:default}
+.mode .ico{position:relative;height:46px;margin-bottom:4px}
+.mode .ico .card{--w:28px;position:absolute;top:2px;box-shadow:0 2px 5px rgba(0,0,0,.3);transition:transform .3s cubic-bezier(.3,1.6,.5,1)}
+.mode .ico .card:first-child{left:2px;transform:rotate(-10deg)}
+.mode .ico .card:last-child{left:20px;transform:rotate(10deg) translateY(2px)}
+.mode.on .ico .card:last-child{transform:rotate(18deg) translate(4px,-2px)}
+.mode:not(.on) .ico .card{filter:saturate(.35)}
+.mode::after{content:"";position:absolute;top:12px;right:12px;width:22px;height:22px;border-radius:50%;border:2px solid var(--line);background:var(--panel);transition:.2s}
+.mode.on{border-color:var(--blue);box-shadow:0 0 0 3px color-mix(in srgb,var(--blue) 22%,transparent)}
+.mode.on::after{border-color:var(--blue);background:var(--blue) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E") center/14px no-repeat}
+.mode-wild.on{border-color:#9B5DE5;box-shadow:0 0 0 3px color-mix(in srgb,#9B5DE5 25%,transparent);
+  background:linear-gradient(135deg,color-mix(in srgb,#9B5DE5 14%,var(--field)),var(--field) 70%)}
+.mode-wild.on::after{border-color:#9B5DE5;background-color:#9B5DE5}
+/* swap target picker */
+.targets{display:grid;gap:8px;margin:0 0 16px}
+.target{display:flex;align-items:center;gap:12px;width:100%;text-align:left;cursor:pointer;padding:10px 14px;border-radius:14px;border:1.5px solid var(--line);
+  background:var(--field);font-weight:700;transition:border-color .15s,transform .15s}
+.target:hover,.target:focus-visible{border-color:#9B5DE5;transform:translateX(3px)}
+.target .av{width:36px;height:36px;font-size:14px;border-width:2px}
+.target .grow{flex:1;display:flex;align-items:center;gap:8px;min-width:0}
+.target .best{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#fff;background:#9B5DE5;border-radius:999px;padding:2px 8px}
+.tcount{color:var(--muted);font-size:14px;font-weight:600;white-space:nowrap}
+.tcount b{color:var(--ink);font-size:18px}
+.sw{position:relative;flex:none;width:50px;height:30px;border-radius:999px;background:var(--line);transition:background .25s;box-shadow:inset 0 2px 4px rgba(0,0,0,.18)}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 2px 5px rgba(0,0,0,.3);transition:transform .28s cubic-bezier(.3,1.6,.5,1)}
+.rule.on .sw{background:var(--green)}
+.rule.on .sw::after{transform:translateX(20px)}
+.rule.flip.on .sw::after{animation:knobOn .32s cubic-bezier(.3,1.6,.5,1)}
+.rule.flip:not(.on) .sw::after{animation:knobOff .32s cubic-bezier(.3,1.6,.5,1)}
+@keyframes knobOn{from{transform:translateX(0)}}
+@keyframes knobOff{from{transform:translateX(20px)}}
+.rule .lock{font-size:12px;font-weight:700;color:var(--muted);flex:none}
+/* setup screen (before the first deal): its own scrolling page, not a popup squeezed into the table */
+.wp{height:100%;overflow-y:auto;overflow-x:hidden}
+.wgrid{max-width:1000px;margin:0 auto;padding:6px 20px 40px;display:grid;grid-template-columns:1.12fr .88fr;gap:20px;align-items:start}
+.wcol{display:grid;gap:20px;min-width:0}
+.wcard{border-radius:24px;padding:22px}
+.wcard h3{margin:0;font-size:19px;letter-spacing:-.01em}
+.invite{position:relative;overflow:hidden;color:var(--on-felt);border:0;
+  background:radial-gradient(ellipse at 25% 15%,var(--felt-a),var(--felt-b) 78%);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08),0 18px 40px rgba(10,5,30,.25)}
+.invite .eyebrow{font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--on-felt-muted)}
+.invite h2{margin:4px 0 0;font-size:30px;letter-spacing:-.02em;line-height:1.1}
+.invite p{margin:10px 0 18px;color:var(--on-felt-muted);max-width:36ch}
+.invite .tiles{gap:8px;margin-top:14px;display:flex}
+.invite .tiles span{width:56px;height:68px;font-size:34px;background:#FFF7E8;color:#1D1630;border-radius:13px;box-shadow:0 5px 0 #9E8A63}
+.invite .btn{background:#FFF7E8;color:#1D1630;box-shadow:0 4px 0 #9E8A63}
+.invite .deco{position:absolute;right:-4px;top:-14px;width:150px;height:150px;pointer-events:none;opacity:.95}
+.invite .deco .card{--w:52px;position:absolute;top:18px;left:56px;transform-origin:50% 140%}
+.invite > :not(.deco){position:relative}
+.phead{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:12px}
+.count{font-size:13px;font-weight:800;color:var(--muted);font-variant-numeric:tabular-nums}
+.wp .plist{grid-template-columns:repeat(auto-fill,minmax(190px,1fr));margin:0;gap:8px}
+.wp .plist li{padding:8px 10px;min-width:0}
+.wp .plist .grow{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.addseat{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:52px;border-radius:12px;border:2px dashed var(--line);
+  background:none;cursor:pointer;color:var(--muted);font-weight:700;transition:border-color .15s,color .15s,background .15s}
+.addseat:hover:not(:disabled){border-color:var(--muted);color:var(--ink);background:var(--field)}
+.addseat:disabled{opacity:.5;cursor:not-allowed}
+.plist li.slot{padding:0;background:none}
+.wset{display:grid;gap:16px}
+.wdeal{display:grid;gap:4px}
+.wdeal .btn{width:100%}
+.wait-note{display:flex;align-items:center;gap:10px;padding:14px 16px;border-radius:16px;background:var(--field);border:1px solid var(--line);color:var(--muted);font-weight:600}
+.dots i{display:inline-block;width:6px;height:6px;margin:0 2px;border-radius:50%;background:currentColor;animation:dot 1.2s infinite}
+.dots i:nth-child(2){animation-delay:.15s}.dots i:nth-child(3){animation-delay:.3s}
+@keyframes dot{0%,80%,100%{opacity:.25}40%{opacity:1}}
+
+/* thin themed scrollbars instead of the browser default */
+*{scrollbar-width:thin;scrollbar-color:var(--line) transparent}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--line);border-radius:999px;border:3px solid transparent;background-clip:content-box}
+::-webkit-scrollbar-thumb:hover{background-color:var(--muted)}
+.emob{position:fixed;left:0;top:0;width:58px;height:58px;display:grid;place-items:center;font-size:34px;line-height:1;background:#fff;border-radius:50%;
+  box-shadow:0 6px 18px rgba(0,0,0,.35);z-index:31}
+.hint,.modal .hint{font-size:13px;color:var(--muted);margin:16px 0 0}
 #fx{position:fixed;inset:0;pointer-events:none;z-index:30}
 #fx .card{position:fixed;left:0;top:0}
 #confetti{position:fixed;inset:0;pointer-events:none;z-index:50;width:100%;height:100%}
@@ -207,9 +341,17 @@ button,input,select{font:inherit;color:inherit}
   .hand{height:calc(66px*1.48 + 46px)}.hand .card{--w:66px;bottom:26px}
   .tcode .me{display:none}.ticker div:not(:last-child){display:none}.ticker{min-height:0}
   .turnline{font-size:15px}
+  .wgrid{grid-template-columns:1fr;gap:14px;padding:4px 14px 0}.wcol{gap:14px}.wcard{padding:18px;border-radius:20px}
+  .invite h2{font-size:24px}.invite .tiles span{width:48px;height:58px;font-size:28px}.invite .deco{transform:scale(.8);transform-origin:top right}
+  .wp .plist{grid-template-columns:1fr 1fr}.wp .plist .tag{display:none}.wp .plist li{gap:8px;padding:6px 8px}
+  .wdeal{position:sticky;bottom:0;z-index:5;margin:0 -14px;padding:22px 14px calc(14px + env(safe-area-inset-bottom,0px));
+    background:linear-gradient(to bottom,transparent,var(--bg) 22px)}
+  .rule{padding:10px 12px;gap:10px}.rule .dsc{font-size:12px}
+  .react{right:10px;bottom:10px;gap:8px}.rbtn{width:46px;height:46px;font-size:23px}
+  .etray{gap:4px;padding:5px}.etray button{width:37px;height:37px;font-size:20px}
 }
 @media (prefers-reduced-motion: reduce){
-  .ring,.uno.hot{animation:none}
+  .ring,.uno.hot,.penb.bump,.dots i,.etray.pop,.etray.pop button,.rule.flip .sw::after{animation:none}
   *{transition:none!important}
 }
 </style>
@@ -242,6 +384,62 @@ const decode = h => (typeof h === "string" ? h.match(/../g) : null) || [];
 function toast(msg){ const t=$("#toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.remove("show"),2600); }
 function store(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
 function load(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
+const EMOTES = ["😂","😱","😤","🔥","👏","😈"];   // indexes are shared with the engine
+
+/* ======================= sound ======================= */
+/* Every sound is synthesized with Web Audio, so there are no files to load.
+   Browsers only allow audio after a click or key press, so unlock() runs on the first one. */
+const SFX = (()=>{
+  let ctx=null, out=null, noiseBuf=null, muted = load("lc-mute")==="1";
+  function unlock(){
+    if(!ctx){
+      const C=window.AudioContext||window.webkitAudioContext; if(!C) return;
+      ctx=new C(); out=ctx.createGain(); out.gain.value=.45; out.connect(ctx.destination);
+      noiseBuf=ctx.createBuffer(1,ctx.sampleRate*.5,ctx.sampleRate);
+      const d=noiseBuf.getChannelData(0); for(let i=0;i<d.length;i++) d[i]=Math.random()*2-1;
+    }
+    if(ctx.state==="suspended") ctx.resume();
+  }
+  function tone(t,f,dur,type,vol,f2){
+    const o=ctx.createOscillator(), g=ctx.createGain();
+    o.type=type||"sine"; o.frequency.setValueAtTime(f,t); if(f2) o.frequency.exponentialRampToValueAtTime(f2,t+dur);
+    g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(vol,t+.008); g.gain.exponentialRampToValueAtTime(.0008,t+dur);
+    o.connect(g); g.connect(out); o.start(t); o.stop(t+dur+.05);
+  }
+  function hiss(t,dur,freq,vol,freq2){
+    const s=ctx.createBufferSource(), f=ctx.createBiquadFilter(), g=ctx.createGain();
+    s.buffer=noiseBuf; f.type="bandpass"; f.Q.value=1.2; f.frequency.setValueAtTime(freq,t); if(freq2) f.frequency.exponentialRampToValueAtTime(freq2,t+dur);
+    g.gain.setValueAtTime(vol,t); g.gain.exponentialRampToValueAtTime(.0008,t+dur);
+    s.connect(f); f.connect(g); g.connect(out); s.start(t); s.stop(t+dur+.02);
+  }
+  const notes=(t,fs,step,dur,type,vol)=>fs.forEach((f,i)=>tone(t+i*step,f,dur,type,vol));
+  const SOUNDS = {
+    card:  t=>{ hiss(t,.07,2600,.5); tone(t,170,.09,"sine",.35,80); },
+    draw:  (t,n)=>{ for(let j=0;j<Math.min(n||1,6);j++) hiss(t+j*.075,.11,900,.28,2400); },
+    deal:  t=>{ for(let j=0;j<10;j++) hiss(t+j*.05,.05,2200+Math.random()*900,.22); },
+    turn:  t=>{ tone(t,660,.16,"triangle",.22); tone(t+.11,990,.28,"triangle",.2); },
+    stack: (t,pen)=>{ const f=260+Math.min(pen||2,20)*28; tone(t,f,.16,"square",.09,f*1.5); tone(t+.11,f*1.5,.26,"square",.08,f*2.1); },
+    ouch:  t=>{ tone(t,330,.22,"sawtooth",.1,300); tone(t+.2,290,.22,"sawtooth",.1,260); tone(t+.4,250,.55,"sawtooth",.1,140); },
+    uno:   t=>notes(t,[523,659,784,1047],.07,.22,"triangle",.2),
+    alarm: t=>{ tone(t,880,.1,"square",.08); tone(t+.16,880,.1,"square",.08); },
+    caught:t=>{ tone(t,120,.4,"sawtooth",.16,95); hiss(t,.25,500,.2); },
+    pop:   t=>tone(t,480,.1,"sine",.3,950),
+    swap:  t=>{ hiss(t,.35,600,.3,3200); hiss(t+.18,.35,3200,.25,600); tone(t,300,.3,"triangle",.14,700); tone(t+.18,700,.3,"triangle",.12,300); },
+    win:   t=>{ notes(t,[523,659,784],.11,.2,"triangle",.2); tone(t+.36,1047,.7,"triangle",.22); tone(t+.36,523,.7,"sine",.15); },
+    lose:  t=>{ tone(t,392,.3,"triangle",.16); tone(t+.18,330,.5,"triangle",.14); }
+  };
+  return {
+    unlock,
+    get muted(){ return muted; },
+    toggle(){ muted=!muted; store("lc-mute",muted?"1":"0"); if(!muted){ unlock(); this.play("pop"); } },
+    play(name,delay,arg){
+      if(muted || !ctx || ctx.state!=="running" || !SOUNDS[name]) return;
+      try{ SOUNDS[name](ctx.currentTime+.01+(delay||0),arg); }catch(e){}
+    }
+  };
+})();
+document.addEventListener("pointerdown", SFX.unlock, {passive:true});
+document.addEventListener("keydown", SFX.unlock);
 
 /* ======================= card art ======================= */
 const SKIP = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2"><circle cx="12" cy="12" r="8.2"/><path d="M6.4 17.6 17.6 6.4"/></svg>';
@@ -250,11 +448,9 @@ const WHEEL = (ring) => `<svg viewBox="0 0 40 40"><g transform="rotate(18 20 20)
   <path d="M20 20V4a16 16 0 0 1 16 16z" fill="#E2363E"/><path d="M20 20h16a16 16 0 0 1-16 16z" fill="#2266D6"/>
   <path d="M20 20v16A16 16 0 0 1 4 20z" fill="#F5B82E"/><path d="M20 20H4A16 16 0 0 1 20 4z" fill="#22A55B"/></g>
   ${ring?'<circle cx="20" cy="20" r="17.5" fill="none" stroke="#fff" stroke-width="2.2"/>':''}<circle cx="20" cy="20" r="4.2" fill="#17122A" stroke="#fff" stroke-width="2"/></svg>`;
-function cardLabel(c){
-  const v=c[1], col=c[0];
-  const vn = v==="s"?"Skip":v==="r"?"Reverse":v==="d"?"Draw Two":v==="w"?"Wild":v==="f"?"Wild Draw Four":v;
-  return col==="w" ? vn : `${CNAME[col]} ${vn}`;
-}
+/* Wild Swap: two cards trading places (kept distinct from the Reverse arrows). */
+const SWAP = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="7" width="7.5" height="10" rx="1.6" fill="currentColor" fill-opacity=".35"/><rect x="14" y="7" width="7.5" height="10" rx="1.6" fill="currentColor" fill-opacity=".35"/><path d="M6.5 4.6c3-2.6 8-2.6 11 0"/><path d="M15.4 2.6l2.1 2-2.2 1.9"/><path d="M17.5 19.4c-3 2.6-8 2.6-11 0"/><path d="M8.6 21.4l-2.1-2 2.2-1.9"/></svg>';
+const cardLabel = Engine.cardLabel;
 function cardHTML(c, extra="", tag="div", attrs=""){
   const col=c[0], v=c[1];
   let big, idx;
@@ -263,15 +459,17 @@ function cardHTML(c, extra="", tag="div", attrs=""){
   else if(v==="d"){ big="+2"; idx="+2"; }
   else if(v==="w"){ big=WHEEL(true); idx=""; }
   else if(v==="f"){ big="+4"; idx="+4"; }
+  else if(v==="x"){ big=SWAP; idx=SWAP; }
   else { big = (v==="6"||v==="9") ? `<span class="ul">${v}</span>` : v; idx=big; }
   const bigCls = v==="w" ? "big wild" : (v==="d"||v==="f") ? "big plus" : "big";
-  const wildBg = v==="f" ? `<div class="big wild" style="opacity:.55">${WHEEL(false)}</div>` : "";
+  // Action wilds (Wild Draw Four, and every Wild Rush action) show the color wheel faintly behind the symbol.
+  const wildBg = col==="w" && v!=="w" ? `<div class="big wild" style="opacity:.55">${WHEEL(false)}</div>` : "";
   return `<${tag} class="card c-${col} ${extra}" ${attrs} aria-label="${esc(cardLabel(c))}"><div class="face">${wildBg}
     <span class="idx tl">${idx}</span><div class="${bigCls}">${big}</div><span class="idx br">${idx}</span></div></${tag}>`;
 }
 const backHTML = (extra="", attrs="") => `<div class="card back ${extra}" ${attrs}><div class="face"><div class="big">${WHEEL(true)}</div></div></div>`;
 const points = c => c[0]==="w" ? 50 : "srd".includes(c[1]) ? 20 : +c[1];
-const CO = {r:0,y:1,g:2,b:3,w:4}, VO = "0123456789srdwf";
+const CO = {r:0,y:1,g:2,b:3,w:4}, VO = "0123456789srdxwf";
 
 /* ======================= state ======================= */
 let socket = null, roomState = "connecting", tables = [];
@@ -281,6 +479,9 @@ let E = null;                                     // practice engine
 let S = null, mySeat = -1, isHost = false, tableCode = "";
 let armed = false, picking = null, notice = null;
 let lastEvK = -1, discHist = [], lastRound = null, lastPhase = null;
+let emoOpen = false, emoPop = false, lastEmo = 0, wasMine = false, lastUv = -1, lastPen = 0, penBump = false, lastSk = null;
+const EMO_TIPS = ["LOL","No way","Grr","On fire","Nice one","Evil grin"];
+const EMO_COOL = 900;
 
 /* ======================= networking ======================= */
 function boot(){
@@ -310,6 +511,7 @@ function takeName(){
 function resetTableState(){
   S=null; mySeat=-1; isHost=false; armed=false; picking=null; notice=null;
   lastEvK=-1; discHist=[]; lastRound=null; lastPhase=null;
+  emoOpen=false; emoPop=false; wasMine=false; lastUv=-1; lastPen=0; penBump=false; lastSk=null;
 }
 function enterOnline(code){
   resetTableState(); mode="online"; view="table"; tableCode=code;
@@ -356,6 +558,8 @@ function hostCmd(m){
       case "addbot": if(G.phase==="wait") E.addBot(); break;
       case "kick": if(G.phase==="wait" && G.players[m.i] && G.players[m.i].b) E.removeSeat(m.i); break;
       case "target": if(G.phase==="wait") G.target=+m.v||250; break;
+      case "stack": if(G.phase==="wait") G.stack=!!m.v; break;
+      case "mode": if(G.phase==="wait" && Engine.MODES.includes(m.v)) G.mode=m.v; break;
       case "start": if(G.phase==="wait") E.startGame(); break;
       case "next": if(G.phase==="round") E.startRound(); break;
       case "newgame": E.newGame(); break;
@@ -375,17 +579,33 @@ function setSnap(s){
     discHist.push({c:S.top, r:rand(-16,16), x:rand(-6,6), y:rand(-5,5)}); if(discHist.length>4) discHist.shift();
   }
   if(S.ph!==lastPhase){
-    if((S.ph==="round"||S.ph==="over") && lastPhase && S.rw) confetti(S.rw.w===mySeat ? 180 : 70);
-    if(S.ph!=="play" && S.ph!=="drawn") picking=null;
+    if((S.ph==="round"||S.ph==="over") && lastPhase && S.rw){
+      confetti(S.rw.w===mySeat ? 180 : 70);
+      SFX.play(S.rw.w===mySeat ? "win" : "lose", .35);
+    }
+    // A Wild Draw Four aimed at me (phase "chal") can be answered with my own, which needs the color picker.
+    if(S.ph!=="play" && S.ph!=="drawn" && S.ph!=="chal") picking=null;
     lastPhase=S.ph;
   }
+  // Sounds that come from the state itself rather than from one event.
+  const mine = myTurn() || (S.ph==="chal" && S.ch && S.ch.to===mySeat) || (S.ph==="color" && S.t===mySeat);
+  if(mine && !wasMine) SFX.play("turn", .3);
+  wasMine = mine;
+  const uv = typeof S.uv==="number" ? S.uv : -1;
+  if(uv>=0 && uv!==lastUv) SFX.play("alarm", .2);
+  lastUv = uv;
+  const pen = +S.pen||0;
+  penBump = pen>lastPen; lastPen = pen;
   if(!myTurn() || myHand().length!==2) armed=false;
   render();
+  penBump = false;
   animateEvents();
 }
 const myHand = () => (S && mySeat>=0) ? decode(S.pl[mySeat].h) : [];
 const myTurn = () => S && mySeat>=0 && S.t===mySeat && (S.ph==="play"||S.ph==="drawn");
-const canPlayS = c => c[0]==="w" || c[0]===S.col || (S.top && c[1]===S.top[1]);
+/* Mirrors the engine's canPlay, including the stacking rule. */
+const canPlayS = c => S.pen>0 ? (S.top==="wf" ? c==="wf" : c[1]==="d")
+  : c[0]==="w" || c[0]===S.col || (S.top && c[1]===S.top[1]);
 function playable(i, h){
   if(!myTurn()) return false;
   if(S.ph==="drawn") return i===S.dr;
@@ -405,7 +625,7 @@ function renderLobby(){
     <div class="fan" aria-hidden="true">${fan.map((c,i)=>cardHTML(c,"","div",`style="transform:rotate(${(i-2)*13}deg) translateY(${Math.abs(i-2)*6}px)" data-fan="${i}"`)).join("")}</div>
     <div>
       <h1><span>Last</span><span>Card</span></h1>
-      <p class="lede">The classic UNO rules at a shared table. Open one, send your friends the four-letter code, and deal.</p>
+      <p class="lede">Classic rules, stacking and an all-wild mode, at a shared table. Open one, send your friends the four-letter code, and deal.</p>
     </div>
   </section>
   <section class="panel stack">
@@ -423,8 +643,10 @@ function renderLobby(){
   <section class="rules">
     <details><summary>How a round works</summary>
       <p>Everyone starts with seven cards. On your turn, match the top of the pile by color, number, or symbol. Wild cards go on anything and let you pick the next color.</p>
-      <p>Skip makes the next player miss a turn. Reverse flips the direction of play, and with two players it works like a Skip. Draw Two makes the next player draw two and lose their turn. There’s no stacking of draw cards.</p>
+      <p>Skip makes the next player miss a turn. Reverse flips the direction of play, and with two players it works like a Skip. Draw Two makes the next player draw two and lose their turn.</p>
       <p>A Wild Draw Four is only legal when you hold nothing in the current color. The next player may challenge it: if you were bluffing you draw four instead, and if you weren’t, they draw six.</p>
+      <p>Stacking is on unless the host turns it off. Hit with a Draw Two, you can play a Draw Two of your own to pass the penalty along, now +4. Wild Draw Four stacks on Wild Draw Four the same way. Whoever can’t stack takes the whole pile and loses their turn. A challenge is about the last Wild Draw Four: a caught bluffer takes the whole stack, and a wrong challenge costs the stack plus two.</p>
+      <p>Wild Rush is a second mode the host can pick. Every card is a wild, so anything can be played on anything and nobody picks colors. The deck has plain wilds, Wild Skip, Wild Reverse, Wild Draw Two, Wild Draw Four (no challenges, since every play is legal) and Wild Swap, which trades your hand with a player you choose. Cards score 5 points each, or 10 for a Draw Four or Swap.</p>
       <p>If you can’t or don’t want to play, draw one card. If it fits, you can play it straight away or keep it.</p>
       <p>Press UNO! when you play your second-to-last card. If someone catches you before the next player moves, you draw two.</p>
       <p>The first player out scores the cards left in everyone else’s hands: numbers at face value, Skip, Reverse and Draw Two at 20, wilds at 50. First to the target score wins the game.</p>
@@ -471,6 +693,7 @@ function renderTable(){
     app.innerHTML = `<div class="loading"><div><p style="font-size:20px;font-weight:700;color:var(--ink);margin:0 0 6px">Joining table ${esc(tableCode)}…</p><p style="margin:0 0 16px">Taking your seat.</p><button class="btn ghost" data-act="leave">Back to lobby</button></div></div>${noticeHTML()}`;
     return;
   }
+  if(S.ph==="wait"){ paint(`<div class="wp" data-keep-scroll="wp">${tbarHTML()}${waitHTML(isHost)}</div>${noticeHTML()}`); return; }
   const n=S.pl.length, hand=myHand(), meP=mySeat>=0?S.pl[mySeat]:null, pend=isPending();
   const nm = i => esc(S.pl[i] ? S.pl[i].n : "");
   const isHostView = isHost;
@@ -493,7 +716,11 @@ function renderTable(){
   const hist = discHist.map((d,k)=>cardHTML(d.c, k===discHist.length-1?"topcard":"", "div", `style="transform:translate(${d.x}px,${d.y}px) rotate(${d.r}deg)"`)).join("");
   const canDraw = myTurn() && S.ph==="play" && !pend;
   let line="", subl="";
-  if(S.ph==="play"||S.ph==="drawn"){
+  const pen = +S.pen||0, stackName = S.top==="wf" ? "Wild Draw Four" : "Draw Two";
+  if(S.ph==="play" && pen>0){
+    if(S.t===mySeat){ line = `+${pen} coming your way`; subl = hand.some(c=>canPlayS(c)) ? `Stack a ${stackName} to pass it on, or take ${pen}` : `No ${stackName} to stack. Take ${pen} cards`; }
+    else { line = `${nm(S.t)}’s turn`; subl = `Stack a ${stackName} or take ${pen}`; }
+  } else if(S.ph==="play"||S.ph==="drawn"){
     if(S.t===mySeat){ line = S.ph==="drawn" ? "You drew a playable card" : "Your turn"; subl = S.ph==="drawn" ? "Play it or keep it" : (hand.some(c=>canPlayS(c)) ? "Play a highlighted card, or draw" : "Nothing fits. Draw a card"); }
     else line = `${nm(S.t)}’s turn`;
   } else if(S.ph==="color"){ line = S.t===mySeat ? "Pick the starting color" : `${nm(S.t)} is picking the starting color`; }
@@ -503,8 +730,9 @@ function renderTable(){
       <path d="M50 4l5 -3v6z" fill="rgba(255,255,255,.7)" transform="rotate(${S.dir<0?180:0} 50 4)"/><path d="M50 96l-5 3v-6z" fill="rgba(255,255,255,.7)" transform="rotate(${S.dir<0?180:0} 50 96)"/></svg>
     <div class="center">
       <div class="piles">
-        <button class="deck ${canDraw?"can":""}" data-act="draw" ${canDraw?"":"disabled"} aria-label="Draw a card. ${S.dk} left">${backHTML()}${backHTML()}${backHTML()}<span class="dk">${S.dk} left</span></button>
-        <div class="discard" style="--glow:${glow}" id="discard">${hist}${S.col && S.top && S.top[0]==="w"?`<span class="colchip">${CNAME[S.col]}</span>`:""}</div>
+        <button class="deck ${canDraw?"can":""}" data-act="draw" ${canDraw?"":"disabled"} aria-label="${canDraw&&pen?`Take ${pen} cards`:"Draw a card"}. ${S.dk} left">${backHTML()}${backHTML()}${backHTML()}<span class="dk">${S.dk} left</span></button>
+        <div class="discard" style="--glow:${glow}" id="discard">${hist}${S.col && S.top && S.top[0]==="w"?`<span class="colchip">${CNAME[S.col]}</span>`:""}
+          ${pen>0?`<span class="penb ${penBump?"bump":""}" aria-label="Draw penalty: ${pen} cards">+${pen}</span>`:""}</div>
       </div>
       <div class="turnline" aria-live="polite">${line}${subl?`<small>${subl}</small>`:""}</div>
     </div>`;
@@ -523,7 +751,7 @@ function renderTable(){
       const unoBtn = S.uv===mySeat ? `<button class="btn uno hot" data-act="uno">UNO!</button>` :
         `<button class="btn uno ${armed?"armed":""}" data-act="arm" ${armable&&!pend?"":"disabled"} aria-pressed="${armed}" title="Press before playing your second-to-last card">${armed?"UNO! is on":"UNO!"}</button>`;
       controls = `<span class="me">${esc(meP.n)}, ${meP.s} pts</span>
-        <button class="btn ghost" data-act="draw" ${canDraw?"":"disabled"}>Draw</button>
+        <button class="btn ghost" data-act="draw" ${canDraw?"":"disabled"}>${canDraw&&pen?`Take ${pen}`:"Draw"}</button>
         ${S.ph==="drawn"&&S.t===mySeat?`<button class="btn ghost" data-act="pass" ${pend?"disabled":""}>Keep card</button>`:""}
         ${unoBtn}`;
     }
@@ -534,55 +762,130 @@ function renderTable(){
     const ok = playable(i,hand);
     return cardHTML(hand[i], ok?"ok":"no", "button", `data-act="card" data-i="${i}" style="--ac2:${CVAR[hand[i][0]]||"#fff"}" ${pend?"disabled":""}`);
   }).join("");
-  const ticker = (S.lg||[]).map(l=>`<div>${esc(l)}</div>`).join("");
-  app.innerHTML = `
+  // Reactions: the cooldown ring uses a negative delay so a re-render mid-cooldown picks up where it was.
+  let react="";
+  if(S.ph!=="wait" && mySeat>=0){
+    const since=Date.now()-lastEmo, cool=since<EMO_COOL;
+    react = `<div class="react ${emoOpen?"open":""}">
+      ${emoOpen?`<div class="etray ${emoPop?"pop":""}" role="group" aria-label="Reactions">${EMOTES.map((e,k)=>`<button data-act="emo" data-e="${k}" data-tip="${EMO_TIPS[k]}" style="--i:${k}" aria-label="Send ${EMO_TIPS[k]}">${e}</button>`).join("")}</div>`:""}
+      <button class="rbtn ${cool?"cool":""}" ${cool?`style="--d:-${since}ms"`:""} data-act="emotray" aria-expanded="${emoOpen}" aria-label="${emoOpen?"Close reactions":"Send a reaction"}" title="${emoOpen?"Close":"React"}">${emoOpen?"✕":"😀"}</button>
+    </div>`;
+    emoPop=false;
+  }
+  paint(`
 <div class="ts">
-  <header class="tbar">
-    <button class="btn ghost sm" data-act="leave">Leave</button>
-    <div class="tcode">${mode==="practice"?"Practice table":`Table <b>${esc(S.code)}</b>`}${S.rd?` <span class="me">round ${S.rd}, playing to ${S.tg}</span>`:""}</div>
-    <div class="ticker" aria-live="polite">${ticker}</div>
-  </header>
+  ${tbarHTML()}
   <div class="arena" id="arena">
-    <div class="felt"></div>${seats}${center}${alert}
-    ${S.ph==="wait"?`<div class="inset">${waitHTML(isHostView)}</div>`:""}
+    <div class="felt"></div>${seats}${center}${alert}${react}
   </div>
   <div class="controls">${controls}</div>
   <div class="hand ${myTurn()&&!pend?"turn":""}" id="hand" data-seathand>${handCards}</div>
 </div>
-${overlayHTML(isHostView)}${noticeHTML()}`;
+${overlayHTML(isHostView)}${noticeHTML()}`);
   layoutHand();
 }
+/* Every update rebuilds the markup, so carry over the scroll position of
+   [data-keep-scroll] containers and the focused control; otherwise each click jumps to the top. */
+function paint(html){
+  const scroll={}; app.querySelectorAll("[data-keep-scroll]").forEach(el=>{ scroll[el.dataset.keepScroll]=el.scrollTop; });
+  const a=document.activeElement, focusKey = a && app.contains(a) && a.dataset && a.dataset.act
+    ? `[data-act="${a.dataset.act}"]${a.dataset.v?`[data-v="${a.dataset.v}"]`:""}${a.dataset.e?`[data-e="${a.dataset.e}"]`:""}` : null;
+  app.innerHTML=html;
+  for(const k in scroll){ const el=app.querySelector(`[data-keep-scroll="${k}"]`); if(el) el.scrollTop=scroll[k]; }
+  if(focusKey){ const f=app.querySelector(focusKey); if(f && !f.disabled) f.focus({preventScroll:true}); }
+}
+function tbarHTML(){
+  const ticker = (S.lg||[]).map(l=>`<div>${esc(l)}</div>`).join("");
+  return `<header class="tbar">
+    <button class="btn ghost sm" data-act="leave">Leave</button>
+    <button class="btn ghost sm" data-act="mute" aria-pressed="${SFX.muted}" aria-label="${SFX.muted?"Turn sound on":"Turn sound off"}" title="${SFX.muted?"Sound is off":"Sound is on"}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:block"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor"/>${SFX.muted?'<path d="M16 9.5l5 5M21 9.5l-5 5"/>':'<path d="M15.5 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/>'}</svg></button>
+    <div class="tcode">${mode==="practice"?"Practice table":`Table <b>${esc(S.code)}</b>`}${S.rd?` <span class="me">${S.md==="wild"?"Wild Rush, ":""}round ${S.rd}, playing to ${S.tg}</span>`:""}</div>
+    <div class="ticker" aria-live="polite">${ticker}</div>
+  </header>`;
+}
 function waitHTML(isHost){
+  const full = S.pl.length>=8;
   const list = S.pl.map((p,i)=>`<li><div class="av" style="--ac:${AVC[i%8]}">${esc(initials(p.n))}</div>
      <span class="grow">${esc(p.n)}</span><span class="tag">${i===S.hs?"host":p.b?"bot":""}${i===mySeat?" (you)":""}</span>
-     ${isHost&&p.b?`<button class="x" data-act="kick" data-i="${i}" aria-label="Remove ${esc(p.n)}">×</button>`:""}</li>`).join("");
-  const codeBlock = mode==="practice" ? `<h2>Practice table</h2><p>Add or remove bots, then deal. Nothing here is shared.</p>` :
-    `<h2>Table <span class="tiles">${S.code.split("").map(ch=>`<span>${esc(ch)}</span>`).join("")}</span></h2>
-     <p>Send the invite link, or have friends type this code in the lobby. Two to eight players.</p>
-     <div class="row"><button class="btn ghost sm" data-act="copy">Copy invite link</button></div>`;
-  return `<div class="modal">${codeBlock}
-    <ul class="plist">${list}</ul>
-    ${isHost?`<div class="row" style="justify-content:space-between">
-        <button class="btn ghost sm" data-act="addbot" ${S.pl.length>=8?"disabled":""}>Add a bot</button>
-        <label class="me">Play to <select class="select" id="target">${[100,250,500].map(v=>`<option value="${v}" ${S.tg===v?"selected":""}>${v} points</option>`).join("")}</select></label>
-      </div>
-      <div class="row" style="margin-top:16px"><button class="btn big" data-act="start" ${S.pl.length<2?"disabled":""}>Deal cards</button>
-      ${S.pl.length<2?`<span class="me">Add a bot or wait for a friend</span>`:""}</div>`
-    : `<p style="margin:0">Waiting for ${esc((S.pl[S.hs]||S.pl[0]).n)} to deal.</p>`}
-  </div>`;
+     ${isHost&&p.b?`<button class="x" data-act="kick" data-i="${i}" aria-label="Remove ${esc(p.n)}">×</button>`:""}</li>`).join("")
+    + (isHost && !full ? `<li class="slot"><button class="addseat" data-act="addbot">+ Add a bot</button></li>` : "");
+  const deco = `<div class="deco" aria-hidden="true">${["bd","ys","rd"].map((c,k)=>cardHTML(c,"","div",`style="transform:rotate(${(k-1)*16}deg)"`)).join("")}</div>`;
+  const codeBlock = mode==="practice"
+    ? `<section class="wcard invite">${deco}<div class="eyebrow">Solo</div><h2>Practice table</h2>
+         <p>Just you and the bots. Add or remove bots, pick the rules, then deal. Nothing here is shared.</p></section>`
+    : `<section class="wcard invite">${deco}<div class="eyebrow">Your table code</div>
+         <div class="tiles" aria-label="Table code ${esc(S.code.split("").join(" "))}">${S.code.split("").map(ch=>`<span>${esc(ch)}</span>`).join("")}</div>
+         <p>Send the invite link, or have friends type this code in the lobby. Two to eight players.</p>
+         <button class="btn" data-act="copy">Copy invite link</button></section>`;
+  // The switch knob animates only on the render right after the setting changes.
+  const flip = lastSk!==null && lastSk!==!!S.sk; lastSk=!!S.sk;
+  const rule = `<button class="rule ${S.sk?"on":""} ${flip?"flip":""}" ${isHost?`data-act="stacktoggle"`:"disabled"} role="switch" aria-checked="${!!S.sk}">
+      <span class="ico" aria-hidden="true">${cardHTML("rd")}${cardHTML("bd")}</span>
+      <span class="txt"><span class="ttl">Stacking</span><span class="dsc">${S.sk?"+2 on +2 and +4 on +4. The pile keeps growing until someone can’t answer.":"Off. Draw cards hit right away, classic style."}</span></span>
+      ${isHost?`<span class="sw"></span>`:`<span class="lock">${S.sk?"On":"Off"}</span>`}
+    </button>`;
+  const MODE_INFO = [
+    {v:"classic", t:"Classic", d:"Match the color, number or symbol. Draw Fours can be challenged.", cards:["r7","gs"]},
+    {v:"wild", t:"Wild Rush", d:"Every card is wild, so anything goes. Swap hands, short frantic rounds.", cards:["ws","wx"]}
+  ];
+  const md = S.md || "classic";
+  const modes = `<div class="modes" role="radiogroup" aria-label="Game mode">${MODE_INFO.map(m=>`<button class="mode mode-${m.v} ${md===m.v?"on":""}" role="radio" aria-checked="${md===m.v}" ${isHost?`data-act="mode" data-v="${m.v}"`:"disabled"}>
+      <span class="ico" aria-hidden="true">${m.cards.map(c=>cardHTML(c)).join("")}</span>
+      <span class="ttl">${m.t}</span><span class="dsc">${m.d}</span></button>`).join("")}</div>`;
+  const seg = `<div class="seg" role="radiogroup" aria-label="Points to win">${[100,250,500].map(v=>`<button role="radio" aria-checked="${S.tg===v}" class="${S.tg===v?"on":""}" ${isHost?`data-act="target" data-v="${v}"`:"disabled"}>${v}</button>`).join("")}</div>`;
+  const host = esc((S.pl[S.hs]||S.pl[0]).n);
+  const deal = isHost
+    ? `<button class="btn big" data-act="start" ${S.pl.length<2?"disabled":""}>Deal cards</button>
+       ${S.pl.length<2?`<p class="hint">Add a bot or wait for a friend to join.</p>`:""}`
+    : `<div class="wait-note"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>Waiting for ${host} to deal</div>`;
+  return `<main class="wgrid">
+    <div class="wcol">
+      ${codeBlock}
+      <section class="panel wcard">
+        <div class="phead"><h3>Players</h3><span class="count">${S.pl.length} / 8</span></div>
+        <ul class="plist">${list}</ul>
+      </section>
+    </div>
+    <div class="wcol">
+      <section class="panel wcard wset">
+        <h3>Game settings${isHost?"":` <span class="count">set by ${host}</span>`}</h3>
+        <div class="lbl">Mode</div>
+        ${modes}
+        <div class="setrow"><span class="lbl">Play to</span>${seg}</div>
+        <div class="lbl">House rules</div>
+        ${rule}
+      </section>
+      <div class="wdeal">${deal}</div>
+    </div>
+  </main>`;
 }
 function overlayHTML(isHost){
   if(!S) return "";
+  if(picking && picking.swap){
+    const others=S.pl.map((p,i)=>({p,i})).filter(o=>o.i!==mySeat), low=Math.min(...others.map(o=>o.p.c));
+    // Only flag a clear best choice: one player holding the fewest cards.
+    const fewest = others.filter(o=>o.p.c===low).length===1 ? low : -1;
+    const mine=myHand().length-1;
+    return `<div class="ov"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="sw"><h2 id="sw">Swap hands with…</h2>
+      <p>You’ll have ${mine} ${mine===1?"card":"cards"} after playing this. Take someone else’s hand and give them yours.</p>
+      <div class="targets">${others.map(({p,i})=>`<button class="target" data-act="picktarget" data-to="${i}">
+        <span class="av" style="--ac:${AVC[i%8]}">${esc(initials(p.n))}</span>
+        <span class="grow">${esc(p.n)}${p.c===fewest?`<span class="best">fewest</span>`:""}</span>
+        <span class="tcount"><b>${p.c}</b> ${p.c===1?"card":"cards"}</span></button>`).join("")}</div>
+      <button class="btn ghost" data-act="cancelpick">Cancel</button></div></div>`;
+  }
   if(picking || (S.ph==="color" && S.t===mySeat)){
     return `<div class="ov"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="pk"><h2 id="pk">Choose a color</h2><p>${picking?"Play continues in the color you pick.":"The pile starts with a wild. Pick the color everyone plays to."}</p>
       <div class="colors">${COLORS.map(c=>`<button data-act="pick" data-col="${c}" style="background:${CVAR[c]}">${CNAME[c]}</button>`).join("")}</div>
       ${picking?`<button class="btn ghost" data-act="cancelpick">Cancel</button>`:""}</div></div>`;
   }
   if(S.ph==="chal" && S.ch && S.ch.to===mySeat){
-    const f=esc(S.pl[S.ch.f].n), pc=S.ch.pc?CNAME[S.ch.pc]:"the current";
-    return `<div class="ov"><div class="modal" role="dialog" aria-modal="true"><h2>${f} played a Wild Draw Four</h2>
-      <p>It’s only legal if ${f} had no ${pc} card. Challenge it and, if they were bluffing, they draw 4 and you play normally. If they weren’t, you draw 6 and lose your turn.</p>
-      <div class="row"><button class="btn ghost" data-act="chal" data-y="0" ${isPending()?"disabled":""}>Take 4 cards</button><button class="btn" data-act="chal" data-y="1" ${isPending()?"disabled":""}>Challenge</button></div></div></div>`;
+    const f=esc(S.pl[S.ch.f].n), pc=S.ch.pc?CNAME[S.ch.pc]:"the current", n=+S.pen||4;
+    const canStack = S.sk && myHand().includes("wf");
+    return `<div class="ov"><div class="modal" role="dialog" aria-modal="true"><h2>${f} ${n>4?`stacked a Wild Draw Four. It’s +${n}`:"played a Wild Draw Four"}</h2>
+      <p>It’s only legal if ${f} had no ${pc} card. Challenge it and, if they were bluffing, they draw ${n} and you play normally. If they weren’t, you draw ${n+2} and lose your turn.${canStack?` Or stack your own Wild Draw Four and pass +${n+4} along.`:""}</p>
+      <div class="row"><button class="btn ghost" data-act="chal" data-y="0" ${isPending()?"disabled":""}>Take ${n} cards</button><button class="btn" data-act="chal" data-y="1" ${isPending()?"disabled":""}>Challenge</button>
+      ${canStack?`<button class="btn uno" data-act="stackwf">Stack +4</button>`:""}</div></div></div>`;
   }
   if((S.ph==="round"||S.ph==="over") && S.rw){
     const w=S.rw.w, over=S.ph==="over";
@@ -635,8 +938,11 @@ function fly(html, from, to, delay, rot, onEnd){
 function animateEvents(){
   if(!S || !S.ev) return;
   const maxK = S.ev.reduce((m,e)=>Math.max(m,e.k),0);
-  if(lastEvK<0 || RM || maxK<lastEvK){ lastEvK=maxK; return; }
+  if(lastEvK<0 || maxK<lastEvK){ lastEvK=maxK; return; }
   const evs=S.ev.filter(e=>e.k>lastEvK); lastEvK=maxK; if(!evs.length) return;
+  soundEvents(evs);
+  evs.forEach(e=>{ if(e.ty==="emo") showEmote(e.w, e.e); });
+  if(RM) return;
   const disc=$("#discard"), deck=document.querySelector(".deck"); if(!disc||!deck) return;
   const dp=centerOf(disc), kp=centerOf(deck); let d=0;
   const lastPlay=[...evs].reverse().find(e=>e.ty==="play");
@@ -653,8 +959,48 @@ function animateEvents(){
       const to=seatPoint(e.w); if(!to) continue;
       for(let j=0;j<Math.min(e.n,5);j++) fly(backHTML("",`style="--w:${Math.round(deck.offsetWidth*0.8)}px"`), kp, to, d+j*110, rand(-10,10));
       d+=200+Math.min(e.n,5)*110;
+    } else if(e.ty==="swap"){
+      // Two streams of card backs cross between the two seats.
+      const a=seatPoint(e.w), b=seatPoint(e.v); if(!a||!b) continue;
+      const w=Math.round(deck.offsetWidth*0.7);
+      for(let j=0;j<4;j++){
+        fly(backHTML("",`style="--w:${w}px"`), a, b, d+j*90, rand(-25,25));
+        fly(backHTML("",`style="--w:${w}px"`), b, a, d+j*90+45, rand(-25,25));
+      }
+      d+=700;
     }
   }
+}
+function soundEvents(evs){
+  let t=0;
+  for(const e of evs){
+    switch(e.ty){
+      case "play": SFX.play("card",t); if(e.pen>0) SFX.play("stack",t+.08,e.pen); break;
+      case "draw": SFX.play(e.n>=4?"ouch":"draw",t+.05,e.n); break;
+      case "deal": SFX.play("deal",t); break;
+      case "uno": SFX.play("uno",t); break;
+      case "catch": SFX.play("caught",t); break;
+      case "chal": if(e.ok) SFX.play("caught",t); break;
+      case "emo": SFX.play("pop",t); break;
+      case "swap": SFX.play("swap",t+.1); break;
+      default: continue;
+    }
+    t+=.14;
+  }
+}
+function showEmote(w, e){
+  const sym=EMOTES[e|0], at=seatPoint(w); if(!sym || !at) return;
+  const el=document.createElement("div"); el.className="emob"; el.textContent=sym;
+  const x=at[0]-29+rand(-10,10), y=at[1]-80;
+  el.style.transform=`translate(${x}px,${y}px)`;
+  $("#fx").appendChild(el);
+  if(RM){ setTimeout(()=>el.remove(),1800); return; }
+  el.animate([
+    {transform:`translate(${x}px,${y+30}px) scale(.3)`,opacity:0},
+    {transform:`translate(${x}px,${y}px) scale(1.15)`,opacity:1,offset:.15},
+    {transform:`translate(${x}px,${y-6}px) scale(1)`,opacity:1,offset:.75},
+    {transform:`translate(${x}px,${y-40}px) scale(.9)`,opacity:0}],
+    {duration:1900,easing:"ease-out",fill:"both"}).onfinish=()=>el.remove();
 }
 function confetti(count){
   if(RM) return;
@@ -698,21 +1044,55 @@ app.addEventListener("click", e=>{
       const i=+b.dataset.i, h=myHand();
       if(!myTurn()){ if(S.ph!=="wait") toast(S.t===mySeat?"Finish choosing first":"Wait for your turn"); return; }
       if(!playable(i,h)){ b.classList.remove("shake"); void b.offsetWidth; b.classList.add("shake");
-        toast(S.ph==="drawn"?"Only the card you just drew can be played":`That card doesn’t match the pile${S.col?` (${CNAME[S.col]})`:""}`); return; }
-      if(h[i][0]==="w"){ picking={i,c:h[i]}; render(); return; }
-      sendAction({t:"play",i,c:h[i],uno:armed && h.length===2}); armed=false; break;
+        toast(S.ph==="drawn" ? "Only the card you just drew can be played"
+          : S.pen>0 ? `Only a ${S.top==="wf"?"Wild Draw Four":"Draw Two"} can be stacked on +${S.pen}. Otherwise take the cards.`
+          : `That card doesn’t match the pile${S.col?` (${CNAME[S.col]})`:""}`); return; }
+      const wildMode = S.md==="wild";
+      if(h[i]==="wx" && wildMode && h.length>1){ picking={i,c:h[i],swap:true}; render(); return; }
+      if(h[i][0]==="w" && !wildMode){ picking={i,c:h[i]}; render(); return; }
+      // Going out on a Wild Swap swaps nothing, so any other seat will do as the target.
+      sendAction({t:"play",i,c:h[i],uno:armed && h.length===2,to:h[i]==="wx"?(mySeat+1)%S.pl.length:undefined}); armed=false; break;
     }
     case "pick": {
       const col=b.dataset.col;
-      if(picking){ const h=myHand(), p=picking; picking=null; sendAction({t:"play",i:p.i,c:p.c,col,uno:armed && h.length===2}); armed=false; }
+      // The UNO button can't be armed while answering a Wild Draw Four, so a stacked +4 calls it automatically.
+      if(picking){ const h=myHand(), p=picking; picking=null; sendAction({t:"play",i:p.i,c:p.c,col,uno:(armed || S.ph==="chal") && h.length===2}); armed=false; }
       else sendAction({t:"color",col});
       render(); break;
     }
     case "cancelpick": picking=null; render(); break;
+    case "picktarget": {
+      if(!picking || !picking.swap) return;
+      const h=myHand(), p=picking; picking=null;
+      sendAction({t:"play",i:p.i,c:p.c,to:+b.dataset.to,uno:armed && h.length===2}); armed=false; render(); break;
+    }
+    case "mode": hostCmd({c:"mode",v:b.dataset.v}); break;
+    case "stackwf": {
+      const h=myHand(), i=h.indexOf("wf");
+      if(i>=0 && S.ph==="chal" && S.ch && S.ch.to===mySeat){ picking={i,c:"wf"}; render(); }
+      break;
+    }
+    case "mute": SFX.toggle(); render(); break;
+    case "emotray": emoOpen=!emoOpen; emoPop=emoOpen; render(); break;
+    case "emo": {
+      const now=Date.now(); if(now-lastEmo<EMO_COOL) return;
+      lastEmo=now; sendAction({t:"emo",e:+b.dataset.e}); render();
+      setTimeout(()=>{ if(view==="table") render(); }, EMO_COOL+30); // clear the cooldown ring
+      break;
+    }
+    case "stacktoggle": hostCmd({c:"stack",v:!S.sk}); break;
+    case "target": hostCmd({c:"target",v:+b.dataset.v}); break;
   }
 });
-app.addEventListener("change", e=>{ if(e.target.id==="target") hostCmd({c:"target",v:+e.target.value}); });
-document.addEventListener("keydown", e=>{ if(e.key==="Escape" && picking){ picking=null; render(); } });
+// Clicking anywhere else on the table closes the reaction tray.
+app.addEventListener("click", e=>{
+  if(emoOpen && !e.target.closest(".react")){ emoOpen=false; if(!e.target.closest("[data-act]")) render(); }
+}, true);
+document.addEventListener("keydown", e=>{
+  if(e.key!=="Escape") return;
+  if(picking){ picking=null; render(); }
+  else if(emoOpen){ emoOpen=false; render(); }
+});
 
 boot();
 })();

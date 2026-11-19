@@ -2,6 +2,10 @@
 
 A multiplayer card game played by the classic UNO rules. Players open a table, share a four-letter code or invite link, and play in real time. Bots can fill empty seats, and there's a solo practice mode.
 
+Stacking is on by default: a Draw Two can be answered with another Draw Two, and a Wild Draw Four with another Wild Draw Four, until someone takes the whole penalty. The host can turn it off before dealing to play by the strict classic rules.
+
+The host can also pick **Wild Rush**, a second mode where every card is a wild: Wild Skip, Wild Reverse, Wild Draw Two, Wild Draw Four and Wild Swap (trade hands with a player you choose). There's nothing to match and no colors to pick, so rounds are short and chaotic. Players can send quick emoji reactions, and the table has synthesized sound effects (the speaker button mutes them).
+
 ## Run it on your computer
 
 You need Node.js 18 or newer.

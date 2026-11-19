@@ -126,6 +126,8 @@ io.on("connection", socket => {
       case "addbot": if (G.phase === "wait") E.addBot(); break;
       case "kick": { const i = m.i | 0; if (G.phase === "wait" && G.players[i] && G.players[i].b) E.removeSeat(i); break; }
       case "target": if (G.phase === "wait" && [100, 250, 500].includes(+m.v)) G.target = +m.v; break;
+      case "stack": if (G.phase === "wait") G.stack = !!m.v; break;
+      case "mode": if (G.phase === "wait" && Engine.MODES.includes(m.v)) G.mode = m.v; break;
       case "start": if (G.phase === "wait") E.startGame(); break;
       case "next": if (G.phase === "round") E.startRound(); break;
       case "newgame":
